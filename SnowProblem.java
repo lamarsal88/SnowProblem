@@ -1,12 +1,17 @@
-/**
-this java code is the snow problem
+import java.awt.BorderLayout;
+import java.awt.Color;
+
+// Import GUI components in Swing class
+// import JPanel class;
+
+/**this java code is the snow problem
 a frame by the name of SnowProblemFrame is created for the GUI window
 @param xxxx
 @author lamar alsalamah
 @return
 */
 
-import javax.swing.*;// import GUI components in classes in swing
+import javax.swing.*; // import GUI components in classes in swing
 public class SnowProblem{
     public static void main(String[] args) {
         System.out.println("This will be printed");
@@ -19,7 +24,7 @@ public class SnowProblem{
 SnowProblemFrame.setVisible(true); // Make it visible
 SnowProblemFrame.setTitle("Snow Problem!"); // set the title of the window GUI
 SnowProblemFrame.setSize(1000, 1000); // set the size of the window GUI
-SnowProblemFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);/*  Execute a clean termination 
+SnowProblemFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);/*Execute a clean termination 
 of the ongoing operation, ensure all temporary resources are released, and subsequently 
 close the graphical user interface to conclude the session*/
 SnowProblemFrame.setLocationRelativeTo(null);// Locate the window GUI in the center of the screen
@@ -30,5 +35,23 @@ SnowProblemFrame.setLocationRelativeTo(null);// Locate the window GUI in the cen
  drawing routines in the next steps */
 JPanel SnowProblemPanel = new JPanel(); // Create a panel
 SnowProblemFrame.setContentPane(SnowProblemPanel); // Use panel on Window
+
+/*Add JPanel "snowProblemDescription" on the top and center of the frame snowProblemFrame
+ GUI to give the player a short description of the game*/
+    JLabel SnowProblemDescription = new JLabel();
+    SnowProblemDescription.setOpaque(true); //Back the the panel opaque.
+    SnowProblemDescription.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));// Set the borders to 1.
+    SnowProblemDescription.setBackground(Color.RED); // Set the background color of the label to green
+    SnowProblemFrame.add(SnowProblemDescription,BorderLayout.NORTH);/*Position of the label is set to the top and center of the frame.
+    /Print the game goal on the label*/
+    SnowProblemDescription.setText("Can you help the snowman? Build the snowman by guiding snowballs around obstacles until they are perfectly positioned to stack");
+
+JButton b = new JButton("Press!"); 
+SnowProblemPanel.add(b); 
+SnowProblemFrame.setContentPane(SnowProblemPanel); 
+
+
+
+
     }
 }
