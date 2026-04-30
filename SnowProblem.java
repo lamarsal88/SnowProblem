@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-/**
+/** 
  * This game is called the snow problem. The board has 20 locations with size
  * of 5 by 4 board. There are two trees on the board. The location of the
  * trees can be changed by the gamer. On the board, there are two
@@ -23,7 +23,7 @@ import java.awt.event.*;
 @return
 */
 
-import javax.swing.*; // import GUI components in classes in swing
+//import javax.swing.*; // import GUI components in classes in swing
 public class SnowProblem{
     public static void main(String[] args) {
         System.out.println("This will be printed");
