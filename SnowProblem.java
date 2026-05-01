@@ -23,47 +23,26 @@ import java.awt.event.*;
 @return
 */
 
-//import javax.swing.*; // import GUI components in classes in swing
-public class SnowProblem{
-    public static void main(String[] args) {
-        System.out.println("This will be printed");
-        System.out.println("second line");
-        System.out.println("third line");
+public class SnowProblem extends JFrame {
+    /*The number of the comlumns in the board is 5 and the number of the rows in the board is 4. The size of the board squares is set to 90 pixels */
+    static final int NoBoardColumns = 5, NoBoardRows = 4, boardSquareSize = 90;
+    final java.util.ArrayList<Integer>[][] g = new java.util.ArrayList[NoBoardRows][NoBoardColumns];
+    int treesPlaced = 0, ballPlaced = 0, selectedRow = -1, selectedColumn = -1;
+    int phase = 0; //
+    boolean over = false, won = false;
+    JLabel status = new JLabel();
 
-    /*Create a clean, unpopulated top-level window that acts as the root container 
-    for the problem’s GUI. Assign the instance name SnowProblemFrame*/
-    JFrame SnowProblemFrame = new JFrame(); // Create a blank window for Snow problem
-SnowProblemFrame.setVisible(true); // Make it visible
-SnowProblemFrame.setTitle("Snow Problem!"); // set the title of the window GUI
-SnowProblemFrame.setSize(1000, 1000); // set the size of the window GUI
-SnowProblemFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);/*Execute a clean termination 
-of the ongoing operation, ensure all temporary resources are released, and subsequently 
-close the graphical user interface to conclude the session*/
-SnowProblemFrame.setLocationRelativeTo(null);// Locate the window GUI in the center of the screen
+    public SnowProblem() {
+        super("Snow Problem");
+        //
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        for (int r = 0; r < NoBoardRows; r++)
+            for (int c = 0; c < NoBoardColumns; c++) g[r][c] = new java.util.ArrayList<>();
+        //
+        Canvas gameBoard = new Canvas();
+        add(gameBoard, BorderLayout.CENTER);
 
-/*Create an instance of JPanel that functions as the main workspace for the interface.
- Attach this panel to the window SnowProblemFrame by making it the frame’s default content area, 
- which will give a clean canvas for adding buttons, labels, game objects, and custom 
- drawing routines in the next steps */
-JPanel SnowProblemPanel = new JPanel(); // Create a panel
-SnowProblemFrame.setContentPane(SnowProblemPanel); // Use panel on Window
-
-/*Add JPanel "snowProblemDescription" on the top and center of the frame snowProblemFrame
- GUI to give the player a short description of the game*/
-    JLabel SnowProblemDescription = new JLabel();
-    SnowProblemDescription.setOpaque(true); //Back the the panel opaque.
-    SnowProblemDescription.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));// Set the borders to 1.
-    SnowProblemDescription.setBackground(Color.RED); // Set the background color of the label to green
-    SnowProblemFrame.add(SnowProblemDescription,BorderLayout.NORTH);/*Position of the label is set to the top and center of the frame.
-    Print the game goal on the label*/
-    SnowProblemDescription.setText("Can you help the snowman? Build the snowman by guiding snowballs around obstacles until they are perfectly positioned to stack");
-
-JButton b = new JButton("Press!"); 
-SnowProblemPanel.add(b); 
-SnowProblemFrame.setContentPane(SnowProblemPanel); 
-    b.setPreferredSize(new Dimension(120, 40));
-    SnowProblemPanel.add(b, BorderLayout.SOUTH);
-
-   
     }
-}
+
+} 
