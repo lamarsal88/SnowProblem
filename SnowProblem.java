@@ -39,10 +39,33 @@ public class SnowProblem extends JFrame {
         setLayout(new BorderLayout());
         for (int r = 0; r < NoBoardRows; r++)
             for (int c = 0; c < NoBoardColumns; c++) g[r][c] = new java.util.ArrayList<>();
-        //
         Canvas gameBoard = new Canvas();
         add(gameBoard, BorderLayout.CENTER);
 
+        JPanel south = new JPanel(new BorderLayout());
+        status.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+        south.add(status, BorderLayout.NORTH);
+        JPanel buttonPanel = new JPanel();
+        for (String[] d : new String[][]{{"Up","-1","0"},{"Down","1","0"},{"Left","0","-1"},{"Righ","0","1"}}) {
+            JButton b = new JButton(d[0]);
+            int drageOnTheSameRow = Integer.parseInt(d[1]), drageOnTheSameColumn =  Integer.parseInt(d[2]);
+            b.addActionListener(e -> { slide(drageOnTheSameRow, drageOnTheSameColumn); gameBoard.repaint(); });
+            buttonPanel.add(b); 
     }
+    JButton reset = new JButton("Reset");
+    reset.addActionListener(e -> { resetGame(); gameBoard.repaint(); });
+    buttonPanel.add(reset);
+    south.add(buttonPanel,BorderLayout.SOUTH);
+    add(south, BorderLayout.SOUTH);
+
+    resetGame();
+    pack();
+    setLocationRelativeTo(null);
+    setFocusable(true);
+    addKeyListener(new KeyAdapter() {
+
+    })
+
 
 } 
+}
