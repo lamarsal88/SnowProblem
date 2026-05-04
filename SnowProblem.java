@@ -27,7 +27,7 @@ public class SnowProblem extends JFrame {
     /*The number of the comlumns in the board is 5 and the number of the rows in the board is 4. The size of the board squares is set to 90 pixels */
     static final int NoBoardColumns = 5, NoBoardRows = 4, boardSquareSize = 90;
     final java.util.ArrayList<Integer>[][] g = new java.util.ArrayList[NoBoardRows][NoBoardColumns];
-    int treesPlaced = 0, ballPlaced = 0, selectedRow = -1, selectedColumn = -1;
+    int treesPlaced = 0, ballsPlaced = 0, selectedRow = -1, selectedColumn = -1;
     int phase = 0; //
     boolean over = false, won = false;
     JLabel status = new JLabel();
@@ -63,9 +63,144 @@ public class SnowProblem extends JFrame {
     setLocationRelativeTo(null);
     setFocusable(true);
     addKeyListener(new KeyAdapter() {
-
-    })
-
-
+        public void keyPressed(KeyEvent KeySelected) {
+            int keyboardButtonSelected = KeySelected.getKeyCode();
+            if (keyboardButtonSelected == KeyEvent.VK_R ) { resetGame(); gameBoard.repaint(); return; }
+            int drageOnTheSameRow = 0, drageOnTheSameColumn = 0;
+            if (keyboardButtonSelected == KeyEvent.VK_UP ) drageOnTheSameRow = -1;
+            else if (keyboardButtonSelected == KeyEvent.VK_DOWN ) drageOnTheSameRow = -1;
+            else if (keyboardButtonSelected == KeyEvent.VK_LEFT ) drageOnTheSameColumn = -1;
+            else if (keyboardButtonSelected == KeyEvent.VK_RIGHT ) drageOnTheSameColumn = -1;
+            else return;
+            slide(drageOnTheSameRow, drageOnTheSameColumn);
+            gameBoard.repaint();
+        }
+    });
 } 
+
+void resetGame() {
+    for (int r = 0; r < NoBoardRows; r++)
+        for (int c = 0; c < NoBoardColumns; c++) g[r][c].clear();
+    treesPlaced = 0; ballsPlaced = 0; selectedRow = selectedColumn = -1;
+    gameStage = 0; snowManBuilt = false; endOfGame = false;
+    updateStatus();
+}
+
+String ballName(int code) {
+    return code == 2 ? "large snowball" : code == 3 ? "small snowball" : "snowman head";
+}
+
+void updateStatus() {
+    if (endOfGame) status.setText("You win! Press Reset to play again.");
+    else if (snowManBuilt) status.setText("Game over — piece fell off. Click on the reset button to reset.");
+    else if (gameStage == 0) status.setText("Place tree " + (treesPlaced + 1) + " of 2 (click an empty square).");
+    else if (gameStage == 1) {
+        int code = 2 + ballsPlaced;
+        status.setText("Place the " + ballName(code) + " (click an empty square).");
+    }
+    else status.setText("Click a ball/head, then use the direction buttons to slide.");
+} 
+
+int top(int r, int c) {
+    jave.util.ArrayList<Integer> s = g[r][c];
+    return s.isEmpty() ? 0 : s.get(s.size() - 1);
+}
+
+boolean canStackOn(int mover, int r, int c) {
+    int t = top(r,c);
+    if (mover == 3 && t == 2) return true;
+    if (mover == 4 && t == 3) return true;
+    return false;
+}
+
+void slide(int drageOnTheSameRow, int drageOnTheSameColumn) {
+    if (gameStage != 2 || snowManBuilt || endOfGame || selectedRow < 0) return;
+    int piece = top(selectedRow, selectedColumn);
+    if (piece < 2) return;
+    g[selectedRow][selectedColumn].remove(g[selectedRow][selectedColumn].size() - 1);
+    int r = selectedRow, co = selectedColumn;
+    while (true) {
+        int newRow = r + drageOnTheSameRow, newColumn = co + drageOnTheSameColumn;
+        if (newRow < 0 || newRow >= NoBoardRows || newColumn < 0 || newColumn >= NoBoardColumns) {
+            snowManBuilt = true; selectedRow = selectedColumn = -1; updateStatus(); return;
+        }
+        int t = top(newRow, newColumn);
+        if (t == 0) {r = newRow; co = newColumn; continue; }
+        if (canStackOn(piece, newRow, newColumn)) {
+            g[newRow][newColumn].add(piece);
+            selectedRow = newRow; selectedColumn = newColumn;
+            checkWin();
+            updateStatus();
+            return;
+        }
+        g[r][co].add(piece);
+        selectedRow = r; selectedColumn = co;
+        updateStatus();
+        return;
+    }
+}
+
+void checkWin() {
+    for (int r = 0; r < NoBoardRows; r++)
+        for (int c = 0; c < NoBoardColumns; c++) {
+    java.util.ArrayList<Integer> s = g[r][c];
+if (s.size() == 3 && s.get(0) == 2 && s.get(1) == 3 && s.get(2) == 4) {
+    endOfGame = true;
+    SwingUtilities.invokeLater(() -> showWinDialog());
+    return;
+}
+}
+}
+
+void showWinDialog() {
+        Object[] options = { "Play again", "Close" };
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "You won!  You rebuilt the snowman.",
+                "The Snow Problem",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]);
+        if (choice == 0) {
+            resetGame();
+            repaint();
+        }
+    }
+
+    class Canvas extends JPanel {
+        Canvas() {
+            setPreferredSize(new Dimension(NoBoardColumns * boardSquareSize, NoBoardRows));
+            addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent MouseClickCoordinates) {
+                    int ColumnPosistionOnBoard = MouseClickCoordinates.getX()/boardSquareSize, RowPosistionOnBoard = MouseClickCoordinates.getY() / boardSquareSize;
+                    if (RowPosistionOnBoard < 0 || RowPosistionOnBoard >= NoBoardRows || ColumnPosistionOnBoard < 0 || ColumnPosistionOnBoard >= NoBoardColumns) return;
+                    if (gameStage == 0) {
+                        if (g[RowPosistionOnBoard][ColumnPosistionOnBoard].isEmpty()) {
+                            g[RowPosistionOnBoard][ColumnPosistionOnBoard].add(1);
+                            treesPlaced++;
+                            if (treesPlaced == 2) gameStage = 1;
+                            updateStatus();
+                            repaint();
+                        }
+                    } else if (gameStage == 1) {
+                        if (g[RowPosistionOnBoard][ColumnPosistionOnBoard].isEmpty()) {
+                            int code = 2 + ballsPlaced;
+                            g[RowPosistionOnBoard][ColumnPosistionOnBoard].add(code);
+                            ballsPlaced++;
+                            if (ballsPlaced == 3) gameStage = 2;
+                            updateStatus();
+                            repaint();
+                        }
+                    } else if (!snowManBuilt && !endOfGame) {
+                        int t = top(RowPosistionOnBoard, ColumnPosistionOnBoard);
+                        if (t >= 2) {selectedRow = RowPosistionOnBoard; selectedColumn = ColumnPosistionOnBoard; repaint(); }
+                    }
+                    SnowProblem.this.requestFocusInWindow();
+                }
+        });
+    }
+    
+
 }
