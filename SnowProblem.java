@@ -22,7 +22,7 @@ import javax.swing.*;
 * @author lamar alsalamah
 * @return
 **/
-//
+//ftfytft
 public class SnowProblem extends JFrame {
     /*The number of the comlumns in the board is 5 and the number of the rows in the board is 4. The size of the board squares is set to 90 pixels */
     static final int NoBoardColumns = 5, NoBoardRows = 4, boardSquareSize = 90;
