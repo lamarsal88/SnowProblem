@@ -1,6 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 /** 
  * This game is called the snow problem. The board has 20 locations with size
@@ -18,18 +18,18 @@ import java.awt.event.*;
  *when one cell holds the full stack: large -> small -> head.
  *A "You won!" dialog appears on victory.
 *Controls: click to place / select. Arrow keys (or buttons) to slide. R = reset.
-@param xxxx
-@author lamar alsalamah
-@return
-*/
+* @param xxxx
+* @author lamar alsalamah
+* @return
+**/
 
 public class SnowProblem extends JFrame {
     /*The number of the comlumns in the board is 5 and the number of the rows in the board is 4. The size of the board squares is set to 90 pixels */
     static final int NoBoardColumns = 5, NoBoardRows = 4, boardSquareSize = 90;
     final java.util.ArrayList<Integer>[][] g = new java.util.ArrayList[NoBoardRows][NoBoardColumns];
     int treesPlaced = 0, ballsPlaced = 0, selectedRow = -1, selectedColumn = -1;
-    int phase = 0; //
-    boolean over = false, won = false;
+    int  gameStage = 0; 
+    boolean snowManBuilt = false, endOfGame = false;
     JLabel status = new JLabel();
 
     public SnowProblem() {
@@ -46,7 +46,7 @@ public class SnowProblem extends JFrame {
         status.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         south.add(status, BorderLayout.NORTH);
         JPanel buttonPanel = new JPanel();
-        for (String[] d : new String[][]{{"Up","-1","0"},{"Down","1","0"},{"Left","0","-1"},{"Righ","0","1"}}) {
+        for (String[] d : new String[][]{{"Up","-1","0"},{"Down","1","0"},{"Left","0","-1"},{"Right","0","1"}}) {
             JButton b = new JButton(d[0]);
             int drageOnTheSameRow = Integer.parseInt(d[1]), drageOnTheSameColumn =  Integer.parseInt(d[2]);
             b.addActionListener(e -> { slide(drageOnTheSameRow, drageOnTheSameColumn); gameBoard.repaint(); });
@@ -68,9 +68,9 @@ public class SnowProblem extends JFrame {
             if (keyboardButtonSelected == KeyEvent.VK_R ) { resetGame(); gameBoard.repaint(); return; }
             int drageOnTheSameRow = 0, drageOnTheSameColumn = 0;
             if (keyboardButtonSelected == KeyEvent.VK_UP ) drageOnTheSameRow = -1;
-            else if (keyboardButtonSelected == KeyEvent.VK_DOWN ) drageOnTheSameRow = -1;
+            else if (keyboardButtonSelected == KeyEvent.VK_DOWN ) drageOnTheSameRow = 1;
             else if (keyboardButtonSelected == KeyEvent.VK_LEFT ) drageOnTheSameColumn = -1;
-            else if (keyboardButtonSelected == KeyEvent.VK_RIGHT ) drageOnTheSameColumn = -1;
+            else if (keyboardButtonSelected == KeyEvent.VK_RIGHT ) drageOnTheSameColumn = 1;
             else return;
             slide(drageOnTheSameRow, drageOnTheSameColumn);
             gameBoard.repaint();
@@ -102,7 +102,7 @@ void updateStatus() {
 } 
 
 int top(int r, int c) {
-    jave.util.ArrayList<Integer> s = g[r][c];
+   java.util.ArrayList<Integer> s = g[r][c];
     return s.isEmpty() ? 0 : s.get(s.size() - 1);
 }
 
@@ -171,7 +171,7 @@ void showWinDialog() {
 
     class Canvas extends JPanel {
         Canvas() {
-            setPreferredSize(new Dimension(NoBoardColumns * boardSquareSize, NoBoardRows));
+            setPreferredSize(new Dimension(NoBoardColumns * boardSquareSize, NoBoardRows * boardSquareSize));
             addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent MouseClickCoordinates) {
                     int ColumnPosistionOnBoard = MouseClickCoordinates.getX()/boardSquareSize, RowPosistionOnBoard = MouseClickCoordinates.getY() / boardSquareSize;
@@ -201,6 +201,70 @@ void showWinDialog() {
                 }
         });
     }
-    
 
+    protected void paintComponent(Graphics setColorBoard) {
+        super.paintComponent(setColorBoard);
+        Graphics2D setColorBoardSquares = (Graphics2D) setColorBoard;
+        setColorBoardSquares.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        for (int r = 0; r < NoBoardRows; r++) for (int c = 0; c < NoBoardColumns; c++) {
+            int x = c * boardSquareSize, y = r * boardSquareSize;
+            setColorBoardSquares.setColor((r + c) % 2 == 0 ? new Color(0xffffff) : new Color(0xD6E8F7) );
+            setColorBoardSquares.fillRect(x, y, boardSquareSize, boardSquareSize);
+            if (r == selectedRow && c == selectedColumn) {
+                setColorBoardSquares.setColor(new Color(0xFFC107));
+                setColorBoardSquares.setStroke(new BasicStroke(3));
+                setColorBoardSquares.drawRect(x + 2, y + 2, boardSquareSize - 4, boardSquareSize - 4);
+            }
+            drawStack(setColorBoardSquares, g[r][c], x, y);
+        }
+        setColorBoardSquares.setColor(Color.GRAY);
+        for (int i = 0; i <= NoBoardColumns; i++) setColorBoardSquares.drawLine(i * boardSquareSize, 0, i * boardSquareSize, NoBoardRows * boardSquareSize);
+        for (int i = 0; i <= NoBoardRows; i++) setColorBoardSquares.drawLine(0, i * boardSquareSize, NoBoardColumns * boardSquareSize, i * boardSquareSize);
+    }
+
+    void drawStack(Graphics2D drawCompleteSnowMan, java.util.ArrayList<Integer> stackSnowballsHead, int x, int y) {
+        if (stackSnowballsHead.isEmpty()) return;
+        if (stackSnowballsHead.get(0) == 1) { drawTreeSnowballsHead(drawCompleteSnowMan, 1, x, y, 0); return; }
+        for (int i = 0; i < stackSnowballsHead.size(); i++) drawTreeSnowballsHead(drawCompleteSnowMan, stackSnowballsHead.get(i), x, y, -i * 18);
+    }
+
+    void drawTreeSnowballsHead(Graphics2D TreeSnowballsHead, int p, int x, int y, int verticalOffset) {
+        int centerOfBoardSquareCorx = x + boardSquareSize / 2, centerOfBoardSquareCory = y + boardSquareSize / 2 + verticalOffset;
+        switch (p) {
+            case 1:
+                TreeSnowballsHead.setColor(new Color(0x6B3E1F));
+                TreeSnowballsHead.fillRect(centerOfBoardSquareCorx - 6, centerOfBoardSquareCory + 18, 12, 18);
+                TreeSnowballsHead.setColor(new Color(0x2E9E3A));
+                TreeSnowballsHead.fillPolygon(new int[]{centerOfBoardSquareCorx, centerOfBoardSquareCorx - 30, centerOfBoardSquareCorx + 30}, new int[]{ centerOfBoardSquareCory - 32, centerOfBoardSquareCory + 22, centerOfBoardSquareCory + 22},  3);
+                break;
+            case 2:
+                TreeSnowballsHead.setColor(Color.WHITE);
+                TreeSnowballsHead.fillOval(centerOfBoardSquareCorx - 36, centerOfBoardSquareCory - 36, 72, 72);
+                TreeSnowballsHead.setColor(Color.GRAY);
+                TreeSnowballsHead.drawOval(centerOfBoardSquareCorx - 36, centerOfBoardSquareCory - 36, 72, 72);
+                break;
+            case 3:
+                TreeSnowballsHead.setColor(Color.WHITE);
+                TreeSnowballsHead.fillOval(centerOfBoardSquareCorx - 24, centerOfBoardSquareCory - 24, 48, 48);
+                TreeSnowballsHead.setColor(Color.GRAY);
+                TreeSnowballsHead.drawOval(centerOfBoardSquareCorx - 24, centerOfBoardSquareCory - 24, 48, 48);
+                break;
+            case 4:
+                TreeSnowballsHead.setColor(Color.WHITE);
+                TreeSnowballsHead.fillOval(centerOfBoardSquareCorx - 16, centerOfBoardSquareCory - 16, 32, 32);
+                TreeSnowballsHead.setColor(Color.GRAY);
+                TreeSnowballsHead.drawOval(centerOfBoardSquareCorx - 16, centerOfBoardSquareCory - 16, 32, 32);
+                TreeSnowballsHead.setColor(Color.BLACK);
+                TreeSnowballsHead.fillOval(centerOfBoardSquareCorx - 6, centerOfBoardSquareCory - 4, 3, 3);
+                TreeSnowballsHead.fillOval(centerOfBoardSquareCorx + 3, centerOfBoardSquareCory - 4, 3, 3);
+                TreeSnowballsHead.setColor(Color.ORANGE);
+                TreeSnowballsHead.fillOval(centerOfBoardSquareCorx - 1, centerOfBoardSquareCory + 2, 5, 5);
+                break;
+        }
+    }
+}
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new SnowProblem().setVisible(true));
+    }
 }
